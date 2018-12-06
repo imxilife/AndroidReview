@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this,SecondActivity.class));
-                finish();
+                //finish();
             }
         });
         mBtn2.setOnClickListener(new View.OnClickListener() {

@@ -1,6 +1,6 @@
 
 
-#### Activity 打卡
+# Activity 打卡
 1. `Activity`是什么? 如何使用? mete-data有什么用? intent是什么？怎么用?
 2. `Activity`的生命周期
 3. `Activity`的启动模式和Flag有哪些，各有什么样的用途
@@ -104,10 +104,79 @@ if(intent.resolveActivity(getPackageManager)!=null){
 Note:
 为了确保应用的安全性，启动 Service 时，请始终使用显式 Intent，且不要为服务声明 Intent 过滤器
 
-##问题:
+####问题:
 1. intent中的action和category ？
 action： ACTION_MAIN
 category: CATEGORY_HOME
 谁配了 这两个 谁就是主入口？
 
-### Activity 第二部分
+## Activity 第二部分
+
+### 生命周期
+
+1. Activity生命周期方法流程图
+![生命周期流程图](https://note.youdao.com/share/?id=72ed3256aafc30f97b77d75a3adce001&type=note#/)
+![生命周期方法描述](https://note.youdao.com/share/?id=72ed3256aafc30f97b77d75a3adce001&type=note#/)
+
+2. 几种常见情况下的Activity的生命周期回调（正常情况）
+
+2.1 `启动一个Activity情况`
+① 针对一个特定的Activity，第一次启动 生命周期方法回调如右： onCreate()->onStart()->onResume()
+② 按home键切换到桌面然后又切回到该Activity时 onPause()->onSaveInstanceState()->onStop()->
+onRestart()->onStart()->onResume()
+③ 按back键退出 onPause()->onStop()->onDestory()
+
+2.2 `启动二个或多个Activity的情况`
+① 先启动一个Activity后 `A`，然后启动另外一个Activity `B`的情况 各自的生命周期方法回调 如下：
+A 生命周期方法回调 onCreate()->onStart()->onResume()->onPause()->onStop()
+B 生命周期方法回调 onCreate()->onStart()->onResume()
+`注:` 这里A 启动 B的情况 时候 ，先是A activity的onPause()方法先执行，然后会启动B 的生命周期回调，等到B切到前台后也就是调用了onResume()方法，这时才会再执行A的onStop()方法。所以不能在A的onPause()方法中做耗时操作以免影响B的启动
+② 先启动一个Activity `A`，再启动一个另一个Activity `B` ，(B是窗口样式)
+A 生命周期方法回调 onCreate()->onStart()->onResume()->onPause()
+B 生命周期方法回到 onCreate()->onStart()->onResume()
+
+`注` 对于启动的Activity样式是Dialog样式的，启动的Activity `A` 的生命周期不会走到onStop()方法中,也就是说它的生命周期回调会在onPause()<->onResume()之间切换
+
+2.3  `调用finish()方法`
+ ① 调用finish方法后 生命周群方法是(从onCreate()方法开始) 
+ onCreate()->onStart()->onResume()->onPause()->onStop->onDestory()
+
+-----------------------------------------------分界线-----------------------------------------------
+
+ 3. 特殊情况下的生命周期
+     在一些特殊情况下，Activity的生命周期的经历有些异常，下面就是两种特殊情况
+
+  3.1 `横竖屏切换`
+
+   (1) 横竖屏切换会使得Activity重建，并且调用onSaveInstanceState()和onRestoreInstanceState()这两个方法来保存状态和恢复状态(这里的状态指的是数据)。
+    横竖屏切换的生命周期： onCreate()->onStart()->onResume()->onPause()->onSaveInstance()->onStop()->onDestory->onCreate()->onStart()->onRestoreInstanceState()->onResume()
+    onSaveInstanceState()这个方法的调用是在onStop()之前，它和onPause()没有既定的时序关系
+    当异常终止的Activity被重建以后，系统会调用onRestoreInstanceState()，并且把Activity销毁时onSaveInstanceState()方法所保存的Bundle对象参数同时传递给onSaveInstanceState和onCreate方法，该方法的调用时机是在onStart之后。其中onCreate()和onRestoreInstanceState()方法来恢复Activity的状态的区别：onRestoreInstanceState回调则表明其中Bundle对象非空，不用加非空判断。
+
+    (2) 禁止横竖屏切换
+    可以通过在AndroidManifest文件的Activity中指定如下属性：
+```java
+     android:configChanges = "orientation| screenSize"
+```
+     来避免横竖屏切换时，Activity的销毁和重建，而是回调了下面的方法：
+```java
+@Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+```
+    
+  3.2 `资源内存不足导致优先级低的Activity被杀死`
+      系统在内存不足的情况下会杀掉某些进程来回收内存，Android会按照以下优先级高低来杀掉进程
+
+      (1) 前台Activity——正在和用户交互的Activity 优先级最高
+
+      (2) 可见但非前台Activity ——比如Activity中弹出了对话框或者启动一个窗口样式的Activity，导致Activity可见但是位于后台无法和用户交互
+
+      (3) 后台Activity——已经被停止的Activity，比如执行了onStop() ,优先级最低
+
+
+  onSaveInstanceState和onRestoreInstanceState调用流程图
+  ![调用](https://note.youdao.com/share/?id=72ed3256aafc30f97b77d75a3adce001&type=note#/)
+
+
