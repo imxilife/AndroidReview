@@ -25,6 +25,11 @@ public class MainActivity extends AppCompatActivity {
     private Button mBtn2;
     private Button mBtn3;
     private Button mBtn4;
+    private Button mBtn5;
+    private Button mBtn6;
+    private Button mBtn7;
+    private Button mBtn8;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
         mBtn2 = (Button) findViewById(R.id.btn2);
         mBtn3 = (Button) findViewById(R.id.btn3);
         mBtn4 = (Button) findViewById(R.id.btn4);
+        mBtn5 = (Button) findViewById(R.id.btn5);
+        mBtn6 = (Button) findViewById(R.id.btn6);
+        mBtn7 = (Button) findViewById(R.id.btn7);
+        mBtn8 = (Button) findViewById(R.id.btn8);
         Log.i(TAG,"onCreate");
     }
 
@@ -88,6 +97,37 @@ public class MainActivity extends AppCompatActivity {
                 startService(intent);
             }
         });
+
+        mBtn5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,StandardActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        mBtn6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,SingleTopActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        mBtn7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        mBtn8.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
     }
 
 

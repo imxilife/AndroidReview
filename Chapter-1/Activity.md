@@ -188,6 +188,8 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
     ![任务栈](https://user-gold-cdn.xitu.io/2017/3/26/5af5cdedb29e8a3dcd743e486d3b86af?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)  
 
   3. Activity LauncherMode  
+    启动模式在AndroidManifest.xml文件 Activity标签下配置 `android:launchMode="xxx"`属性.  
+
   3.1 标准模式  standard  
   每启动一次Activity就会创建一个新的Activity实例并置于栈顶，遵循谁启动了这个Activity，那么这个Acitivity就出现在启动它的那个Acitivity所在的栈.  
 
@@ -196,16 +198,42 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
     activity会被放入一个新的栈中.  
 
   ② 特殊情况下，在Service或者Application中启动一个Activity，会报出以下错误.  
-    <font color=#ff0000> Calling startActivity() from outside of an Activity  context requires the FLAG_ACTIVITY_NEW_TASK flag.</font>  
+    <font color=#ff0000>Calling startActivity() from outside of an Activity  context requires the FLAG_ACTIVITY_NEW_TASK flag</font>  
   错误原因就是因为启动Activity的Service或Applicaiton本身不在任何的栈中，所以无法将被启动的Activity放入任何栈中，解决方法就是构建Intent的时候,  
   指定 `Intent.FLAG_ACTIVITY_NEW_TASK` FLAG ，这样会创建新的任务栈，并将其放入其中.  
   ```java
   intent.setFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
   ```  
-  
-  3.2 栈顶复用模式 singleTop
+  测试结果(在MainActivity和StandardActivity之间来回启动):    
+```java
+   Running activities (most recent first):
+        Run #6: ActivityRecord{33816517 u0 com.kelly.activity_chapter/.MainActivity t10}
+        Run #5: ActivityRecord{201d2427 u0 com.kelly.activity_chapter/.StandardActivity t10}
+        Run #4: ActivityRecord{3c0f57d3 u0 com.kelly.activity_chapter/.MainActivity t10}
+        Run #3: ActivityRecord{e9aae74 u0 com.kelly.activity_chapter/.StandardActivity t10}
+        Run #2: ActivityRecord{3db52be6 u0 com.kelly.activity_chapter/.MainActivity t10}
+        Run #1: ActivityRecord{34db6c10 u0 com.kelly.activity_chapter/.StandardActivity t10}
+        Run #0: ActivityRecord{97d42b9 u0 com.kelly.activity_chapter/.MainActivity t10}
+```        
+   ####应用场景:
+   绝大多数Activity
+   
+
+  3.2 栈顶复用模式 singleTop  
+  如果要启动的Acitivity已经位于栈顶情况下再次启动不会重新创建新的Activity实例，而是会重用已经在栈顶的这个，并回调 `onNewIntent()` 生命周期方法。 如下
+  以上说的只有处于栈顶的时候才会复用，否则其他情况下依然会创建一个新的Activity实例。
+```java
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.d(TAG,"onNewIntent");
+    }
+```
+### 应用场景:
+在通知栏点击收到的通知，然后需要启动一个Activity，这个Activity就可以用singleTop，否则每次点击都会新建一个Activity。
 
   3.3 栈内复用模式 singleTask
+  该模式是一种单例模式，即一个栈内只有一个该Activity实例。该模式，可以通过在AndroidManifest文件的Activity中指定该Activity需要加载到那个栈中，即singleTask的Activity可以指定想要加载的目标栈。singleTask和taskAffinity配合使用，指定开启的Activity加入到哪个栈中。
 
   3.4 单例模式 singleInstance
 

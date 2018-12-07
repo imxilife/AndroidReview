@@ -26,6 +26,11 @@
         <service android:name=".MainService"
             android:exported="false"
             />
+        <activity android:name=".StandardActivity"/>
+        <activity android:name=".SingleTopActivity"
+            android:launchMode="singleTop"
+            android:exported="true"
+            />
 
     </application>
 
