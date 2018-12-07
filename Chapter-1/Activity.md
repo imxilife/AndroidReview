@@ -180,30 +180,33 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
   ![调用](https://note.youdao.com/yws/public/resource/72ed3256aafc30f97b77d75a3adce001/xmlnote/B054B3A045374819AEABA254D5AE3F81/33332)
 
 
-  ###Activity启动模式 LauncherMode
+  ###Activity启动模式 LauncherMode  
 
   1. 出现启动模式的意义: 新建Activity实例or重复利用已有的实例 (场景)
 
-  2. Activity的管理是采用任务栈的形式，任务栈采用“后进先出”的栈结构。
-     ![任务栈](https://user-gold-cdn.xitu.io/2017/3/26/5af5cdedb29e8a3dcd743e486d3b86af?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+  2. Activity的管理是采用任务栈的形式，任务栈采用“后进先出”的栈结构  
+    ![任务栈](https://user-gold-cdn.xitu.io/2017/3/26/5af5cdedb29e8a3dcd743e486d3b86af?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)  
 
-  3. Activity LauncherMode 
-  3.1 标准模式  standard
-  每启动一次Activity就会创建一个新的Activity实例并置于栈顶，遵循谁启动了这个Activity，那么这个Acitivity就出现在启动它的那个Acitivity所在的栈。
-  `注意`
+  3. Activity LauncherMode  
+  3.1 标准模式  standard  
+  每启动一次Activity就会创建一个新的Activity实例并置于栈顶，遵循谁启动了这个Activity，那么这个Acitivity就出现在启动它的那个Acitivity所在的栈.  
+
+  `注意`  
   ① 在Android5.0以前，如果是跨应用启动Activity，那么对方应用的Activity会置于启动应用的任务栈中，这显然是难以理解的，所以在5.0版本后，启动模式是Standard, 跨应用启动的
-    activity会被放入一个新的栈中。
-  ② 特殊情况下，在Service或者Application中启动一个Activity，会报出以下错误，
-   `Calling startActivity() from outside of an Activity  context requires the FLAG_ACTIVITY_NEW_TASK flag.`
-  错误原因就是因为启动Activity的Service或Applicaiton本身不在任何的栈中，所以无法将被启动的Activity放入任何栈中，解决方法就是构建Intent的时候，
-  指定 `Intent.FLAG_ACTIVITY_NEW_TASK` FLAG ，这样会创建新的任务栈，并将其放入其中.
+    activity会被放入一个新的栈中.  
+
+  ② 特殊情况下，在Service或者Application中启动一个Activity，会报出以下错误.  
+    <font color=#ff0000> Calling startActivity() from outside of an Activity  context requires the FLAG_ACTIVITY_NEW_TASK flag.</font>  
+  错误原因就是因为启动Activity的Service或Applicaiton本身不在任何的栈中，所以无法将被启动的Activity放入任何栈中，解决方法就是构建Intent的时候,  
+  指定 `Intent.FLAG_ACTIVITY_NEW_TASK` FLAG ，这样会创建新的任务栈，并将其放入其中.  
   ```java
   intent.setFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
-  ```
+  ```  
   
   3.2 栈顶复用模式 singleTop
 
   3.3 栈内复用模式 singleTask
+
   3.4 单例模式 singleInstance
 
 
