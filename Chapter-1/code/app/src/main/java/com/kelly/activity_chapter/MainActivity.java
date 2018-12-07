@@ -2,6 +2,7 @@ package com.kelly.activity_chapter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mBtn;
     private Button mBtn2;
     private Button mBtn3;
+    private Button mBtn4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         mBtn = (Button) findViewById(R.id.btn);
         mBtn2 = (Button) findViewById(R.id.btn2);
         mBtn3 = (Button) findViewById(R.id.btn3);
+        mBtn4 = (Button) findViewById(R.id.btn4);
         Log.i(TAG,"onCreate");
     }
 
@@ -73,6 +76,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this,ThridActivity.class));
+            }
+        });
+
+        mBtn4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ComponentName componentName = new ComponentName("com.kelly.activity_chapter","com.kelly.activity_chapter.MainService");
+                Intent intent = new Intent();
+                intent.setComponent(componentName);
+                startService(intent);
             }
         });
     }

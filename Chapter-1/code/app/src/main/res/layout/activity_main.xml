@@ -31,4 +31,11 @@
         android:text="打开Dialog样式的Activity"
         />
 
+    <Button
+        android:id="@+id/btn4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="在Service中启动Activity"
+        />
+
 </LinearLayout>
