@@ -190,7 +190,7 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
   3. Activity LauncherMode  
     启动模式在AndroidManifest.xml文件 Activity标签下配置 `android:launchMode="xxx"`属性.  
 
-###3.1 标准模式  standard  
+### 3.1 标准模式  standard  
   每启动一次Activity就会创建一个新的Activity实例并置于栈顶，遵循谁启动了这个Activity，那么这个Acitivity就出现在启动它的那个Acitivity所在的栈.  
 
   `注意`  
@@ -215,11 +215,11 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
         Run #1: ActivityRecord{34db6c10 u0 com.kelly.activity_chapter/.StandardActivity t10}
         Run #0: ActivityRecord{97d42b9 u0 com.kelly.activity_chapter/.MainActivity t10}
 ```        
-####应用场景:
+#### 应用场景:
 绝大多数Activity
    
 
-###3.2 栈顶复用模式 singleTop  
+### 3.2 栈顶复用模式 singleTop  
   如果要启动的Acitivity已经位于栈顶情况下再次启动不会重新创建新的Activity实例，而是会重用已经在栈顶的这个，并回调 `onNewIntent()` 生命周期方法。 如下
   以上说的只有处于栈顶的时候才会复用，否则其他情况下依然会创建一个新的Activity实例。
 ```java
@@ -232,9 +232,9 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
 #### 应用场景:
 在通知栏点击收到的通知，然后需要启动一个Activity，这个Activity就可以用singleTop，否则每次点击都会新建一个Activity。
 
-###3.3 栈内复用模式 singleTask  
+### 3.3 栈内复用模式 singleTask  
   该模式是一种单例模式，即一个栈内只有一个该Activity实例。该模式，可以通过在AndroidManifest文件的Activity中指定该Activity需要加载到那个栈中，即singleTask的Activity可以指定想要加载的目标栈。singleTask和taskAffinity配合使用，指定开启的Activity加入到哪个栈中。
 
-###3.4 单例模式 singleInstance
+### 3.4 单例模式 singleInstance
 
 
