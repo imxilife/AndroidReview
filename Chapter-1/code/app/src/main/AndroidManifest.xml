@@ -18,19 +18,24 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SecondActivity"/>
+        <activity android:name=".SecondActivity" />
         <activity
             android:name=".ThridActivity"
             android:theme="@style/Theme.AppCompat.Dialog" />
 
-        <service android:name=".MainService"
-            android:exported="false"
-            />
-        <activity android:name=".StandardActivity"/>
-        <activity android:name=".SingleTopActivity"
-            android:launchMode="singleTop"
+        <service
+            android:name=".MainService"
+            android:exported="false" />
+
+        <activity android:name=".StandardActivity" />
+        <activity
+            android:name=".SingleTopActivity"
             android:exported="true"
-            />
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".SingleTaskActivity"
+            android:exported="true"
+            android:launchMode="singleTask" />
 
     </application>
 

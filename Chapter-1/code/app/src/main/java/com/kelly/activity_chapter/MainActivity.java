@@ -117,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
         mBtn7.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(MainActivity.this,SingleTaskActivity.class);
+                startActivity(intent);
             }
         });
 

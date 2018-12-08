@@ -235,6 +235,23 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
 ### 3.3 栈内复用模式 singleTask  
   该模式是一种单例模式，即一个栈内只有一个该Activity实例。该模式，可以通过在AndroidManifest文件的Activity中指定该Activity需要加载到那个栈中，即singleTask的Activity可以指定想要加载的目标栈。singleTask和taskAffinity配合使用，指定开启的Activity加入到哪个栈中。
 
+####关于taskAffinity的值：
+  每个Activity都有taskAffinity属性，这个属性指出了它希望进入的Task。如果一个Activity没有显示的指明该Activity的taksAffinity，那么它的属性就等于Application指明的  
+  taskAffinity,如果Application也没有指明，那么该taskAffinity的值就等于包名
+
+####执行逻辑:
+① 如果要启动的Activity指定的栈不存在就创建一个栈，并创建新的Activity实例压入栈中。  
+② 如果Activity指定的栈存在，但其中没有Activity，那么就新建Activity实例并压入栈顶。  
+③ 如果要启动的Activity已经在栈中，那么就将该Activity在栈中位置以上的所有Activity都出栈，然后回调`onNewIntent()`生命周期方法  
+对应如下三种情况  
+![一个任务栈S1](https://user-gold-cdn.xitu.io/2017/3/26/b3079aba6ecd625420087f05d1c4bca0?imageslim)  
+![一个任务栈S1](https://user-gold-cdn.xitu.io/2017/3/26/c1ee3ce0a20da95206b55f19e84db4a0?imageslim)  
+![两个任务栈S1,S2](https://user-gold-cdn.xitu.io/2017/3/26/291ae21d0d9a562a536b8cf77cbd32c8?imageslim)  
+
+####应用场景:
+大多数App。 对于一个应用来说，如果应用不需要退出销毁，而是运行在前后台的话这样的场景，可以SingleTask方式来启动。  
+另外一种情况是对于大部分应用，当我们在主界面点击回退按钮的时候都是退出应用，那么当我们第一次进入主界面之后，主界面位于栈底，以后不管我们打开了多少个Activity，只要我们再次回到主界面，都应该使用将主界面Activity上所有的Activity移除的方式来让主界面Activity处于栈顶，而不是往栈顶新加一个主界面Activity的实例，通过这种方式能够保证退出应用时所有的Activity都能报销毁。
+
 ### 3.4 单例模式 singleInstance
 
 
