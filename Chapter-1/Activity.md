@@ -120,45 +120,45 @@ category: CATEGORY_HOME
 
 2. 几种常见情况下的Activity的生命周期回调（正常情况）
 
-2.1 `启动一个Activity情况`
-① 针对一个特定的Activity，第一次启动 生命周期方法回调如右： onCreate()->onStart()->onResume()
-② 按home键切换到桌面然后又切回到该Activity时 onPause()->onSaveInstanceState()->onStop()->
-onRestart()->onStart()->onResume()
-③ 按back键退出 onPause()->onStop()->onDestory()
+2.1 `启动一个Activity情况`  
+① 针对一个特定的Activity，第一次启动 生命周期方法回调如右： onCreate()->onStart()->onResume()  
+② 按home键切换到桌面然后又切回到该Activity时 onPause()->onSaveInstanceState()->onStop()->  
+onRestart()->onStart()->onResume()  
+③ 按back键退出 onPause()->onStop()->onDestory()  
 
-2.2 `启动二个或多个Activity的情况`
-① 先启动一个Activity后 `A`，然后启动另外一个Activity `B`的情况 各自的生命周期方法回调 如下：
-A 生命周期方法回调 onCreate()->onStart()->onResume()->onPause()->onStop()
-B 生命周期方法回调 onCreate()->onStart()->onResume()
-`注:` 这里A 启动 B的情况 时候 ，先是A activity的onPause()方法先执行，然后会启动B 的生命周期回调，等到B切到前台后也就是调用了onResume()方法，这时才会再执行A的onStop()方法。所以不能在A的onPause()方法中做耗时操作以免影响B的启动
-② 先启动一个Activity `A`，再启动一个另一个Activity `B` ，(B是窗口样式)
-A 生命周期方法回调 onCreate()->onStart()->onResume()->onPause()
-B 生命周期方法回到 onCreate()->onStart()->onResume()
+2.2 `启动二个或多个Activity的情况`  
+① 先启动一个Activity后 `A`，然后启动另外一个Activity `B`的情况 各自的生命周期方法回调 如下：  
+A 生命周期方法回调 onCreate()->onStart()->onResume()->onPause()->onStop()  
+B 生命周期方法回调 onCreate()->onStart()->onResume()  
+`注:` 这里A 启动 B的情况 时候 ，先是A activity的onPause()方法先执行，然后会启动B 的生命周期回调，等到B切到前台后也就是调用了onResume()方法，这时才会再执行A的onStop()方法。所以不能在A的  onPause()方法中做耗时操作以免影响B的启动  
+② 先启动一个Activity `A`，再启动一个另一个Activity `B` ，(B是窗口样式)  
+A 生命周期方法回调 onCreate()->onStart()->onResume()->onPause()  
+B 生命周期方法回到 onCreate()->onStart()->onResume()  
 
-`注` 对于启动的Activity样式是Dialog样式的，启动的Activity `A` 的生命周期不会走到onStop()方法中,也就是说它的生命周期回调会在onPause()<->onResume()之间切换
+`注` 对于启动的Activity样式是Dialog样式的，启动的Activity `A` 的生命周期不会走到onStop()方法中,也就是说它的生命周期回调会在onPause()<->onResume()之间切换  
 
-2.3  `调用finish()方法`
- ① 调用finish方法后 生命周群方法是(从onCreate()方法开始) 
- onCreate()->onStart()->onResume()->onPause()->onStop->onDestory()
+2.3  `调用finish()方法`  
+ ① 调用finish方法后 生命周群方法是(从onCreate()方法开始)   
+ onCreate()->onStart()->onResume()->onPause()->onStop->onDestory()  
 
 -----------------------------------------------分界线-----------------------------------------------
 
- 3. 特殊情况下的生命周期
-     在一些特殊情况下，Activity的生命周期的经历有些异常，下面就是两种特殊情况
+ 3. 特殊情况下的生命周期  
+     在一些特殊情况下，Activity的生命周期的经历有些异常，下面就是两种特殊情况  
 
-  3.1 `横竖屏切换`
+  3.1 `横竖屏切换`  
 
-   (1) 横竖屏切换会使得Activity重建，并且调用onSaveInstanceState()和onRestoreInstanceState()这两个方法来保存状态和恢复状态(这里的状态指的是数据)。
-    横竖屏切换的生命周期： onCreate()->onStart()->onResume()->onPause()->onSaveInstance()->onStop()->onDestory->onCreate()->onStart()->onRestoreInstanceState()->onResume()
-    onSaveInstanceState()这个方法的调用是在onStop()之前，它和onPause()没有既定的时序关系
-    当异常终止的Activity被重建以后，系统会调用onRestoreInstanceState()，并且把Activity销毁时onSaveInstanceState()方法所保存的Bundle对象参数同时传递给onSaveInstanceState和onCreate方法，该方法的调用时机是在onStart之后。其中onCreate()和onRestoreInstanceState()方法来恢复Activity的状态的区别：onRestoreInstanceState回调则表明其中Bundle对象非空，不用加非空判断。
+   (1) 横竖屏切换会使得Activity重建，并且调用onSaveInstanceState()和onRestoreInstanceState()这两个方法来保存状态和恢复状态(这里的状态指的是数据)。  
+    横竖屏切换的生命周期： onCreate()->onStart()->onResume()->onPause()->onSaveInstance()->onStop()->onDestory->onCreate()->onStart()->onRestoreInstanceState()->onResume()  
+    onSaveInstanceState()这个方法的调用是在onStop()之前，它和onPause()没有既定的时序关系  
+    当异常终止的Activity被重建以后，系统会调用onRestoreInstanceState()，并且把Activity销毁时onSaveInstanceState()方法所保存的Bundle对象参数同时传递给onSaveInstanceState和onCreate方  法，该方法的调用时机是在onStart之后。其中onCreate()和onRestoreInstanceState()方法来恢复Activity的状态的区别：onRestoreInstanceState回调则表明其中Bundle对象非空，不用加非空判断。  
 
-    (2) 禁止横竖屏切换
-    可以通过在AndroidManifest文件的Activity中指定如下属性：
+    (2) 禁止横竖屏切换  
+    可以通过在AndroidManifest文件的Activity中指定如下属性：  
 ```java
      android:configChanges = "orientation| screenSize"
 ```
-     来避免横竖屏切换时，Activity的销毁和重建，而是回调了下面的方法：
+     来避免横竖屏切换时，Activity的销毁和重建，而是回调了下面的方法：  
 ```java
 @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -166,17 +166,17 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
     }
 ```
     
-  3.2 `资源内存不足导致优先级低的Activity被杀死`
-      系统在内存不足的情况下会杀掉某些进程来回收内存，Android会按照以下优先级高低来杀掉进程
+  3.2 `资源内存不足导致优先级低的Activity被杀死`  
+      系统在内存不足的情况下会杀掉某些进程来回收内存，Android会按照以下优先级高低来杀掉进程  
 
-      (1) 前台Activity——正在和用户交互的Activity 优先级最高
+      (1) 前台Activity——正在和用户交互的Activity 优先级最高  
 
-      (2) 可见但非前台Activity ——比如Activity中弹出了对话框或者启动一个窗口样式的Activity，导致Activity可见但是位于后台无法和用户交互
+      (2) 可见但非前台Activity ——比如Activity中弹出了对话框或者启动一个窗口样式的Activity，导致Activity可见但是位于后台无法和用户交互  
 
-      (3) 后台Activity——已经被停止的Activity，比如执行了onStop() ,优先级最低
+      (3) 后台Activity——已经被停止的Activity，比如执行了onStop() ,优先级最低  
 
 
-  onSaveInstanceState和onRestoreInstanceState调用流程图
+  onSaveInstanceState和onRestoreInstanceState调用流程图  
   ![调用](https://note.youdao.com/yws/public/resource/72ed3256aafc30f97b77d75a3adce001/xmlnote/B054B3A045374819AEABA254D5AE3F81/33332)
 
 
@@ -195,7 +195,7 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
 
   `注意`  
   ① 在Android5.0以前，如果是跨应用启动Activity，那么对方应用的Activity会置于启动应用的任务栈中，这显然是难以理解的，所以在5.0版本后，启动模式是Standard, 跨应用启动的
-    activity会被放入一个新的栈中.  
+    activity会被放入一个新的栈中(这相当于以SingleTask方式启动).  
 
   ② 特殊情况下，在Service或者Application中启动一个Activity，会报出以下错误.  
     <font color=#ff0000>Calling startActivity() from outside of an Activity  context requires the FLAG_ACTIVITY_NEW_TASK flag</font>  
@@ -237,7 +237,11 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
 
 #### 关于taskAffinity的值：  
   每个Activity都有taskAffinity属性，这个属性指出了它希望进入的Task。如果一个Activity没有显示的指明该Activity的taksAffinity，那么它的属性就等于Application指明的  
-  taskAffinity,如果Application也没有指明，那么该taskAffinity的值就等于包名
+  taskAffinity,如果Application也没有指明，那么该taskAffinity的值就等于包名  
+
+  `注意`  
+  taskAffinity只有启动模式为SingleTask的Activity设置了才有效果，对于标准模式(Standard)和栈顶复用模式(SingleTop)设置了这个属性是没有任何效果的。被启动的Activity依然会在启动它的  
+  Activity所在的任务栈中。
 
 #### 执行逻辑:  
 ① 如果要启动的Activity指定的栈不存在就创建一个栈，并创建新的Activity实例压入栈中。  
@@ -252,6 +256,8 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
 大多数App。 对于一个应用来说，如果应用不需要退出销毁，而是运行在前后台的话这样的场景，可以SingleTask方式来启动。  
 另外一种情况是对于大部分应用，当我们在主界面点击回退按钮的时候都是退出应用，那么当我们第一次进入主界面之后，主界面位于栈底，以后不管我们打开了多少个Activity，只要我们再次回到主界面，都应该使用将主界面Activity上所有的Activity移除的方式来让主界面Activity处于栈顶，而不是往栈顶新加一个主界面Activity的实例，通过这种方式能够保证退出应用时所有的Activity都能报销毁。
 
-### 3.4 单例模式 singleInstance
-
-
+### 3.4 单例模式 singleInstance  
+作为栈内复用模式（singleTask）的加强版,打开该Activity时，直接创建一个新的任务栈，并创建该Activity实例放入新栈中。一旦该模式的Activity实例已经存在于某个栈中，任何应用再激活该Activity时都会重用该栈中的实例。  
+![单列模式](https://user-gold-cdn.xitu.io/2017/3/26/51fcd7612ccdfe436102c607f4555ad5?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)  
+#### 应用场景:
+呼叫来电界面。这种模式的使用情况比较罕见，在Launcher中可能使用。或者你确定你需要使Activity只有一个实例。建议谨慎使用

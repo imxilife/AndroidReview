@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 /**
  * 1、正常情况下的生命周期方法 (新起activity、home键、返回键、一个activity启动另一个activity的生命方法回调、打开窗口样式的Activity、启动dialog)
- * 2、异常情况下的生命周期方法（屏幕翻转、内存回收，进程被杀掉）
+ * 2、异常情况下的生命周期方法（横竖屏切换、内存回收，进程被杀掉）
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -125,7 +125,8 @@ public class MainActivity extends AppCompatActivity {
         mBtn8.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(MainActivity.this,SingleInstanceActivity.class);
+                startActivity(intent);
             }
         });
 

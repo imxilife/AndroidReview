@@ -27,15 +27,26 @@
             android:name=".MainService"
             android:exported="false" />
 
-        <activity android:name=".StandardActivity" />
+        <activity android:name=".StandardActivity"
+            android:taskAffinity="com.kelly.standard"
+            />
         <activity
             android:name=".SingleTopActivity"
             android:exported="true"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            android:taskAffinity="com.kelly.singleTop"
+            />
         <activity
             android:name=".SingleTaskActivity"
             android:exported="true"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            android:taskAffinity="com.kelly.singleTask"
+            />
+        <activity
+            android:name=".SingleInstanceActivity"
+            android:launchMode="singleInstance"
+            android:exported="true"
+            />
 
     </application>
 
