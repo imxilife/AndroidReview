@@ -248,7 +248,7 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
 ![一个任务栈S1](https://user-gold-cdn.xitu.io/2017/3/26/c1ee3ce0a20da95206b55f19e84db4a0?imageslim)  
 ![两个任务栈S1,S2](https://user-gold-cdn.xitu.io/2017/3/26/291ae21d0d9a562a536b8cf77cbd32c8?imageslim)  
 
-####应用场景:  
+#### 应用场景:  
 大多数App。 对于一个应用来说，如果应用不需要退出销毁，而是运行在前后台的话这样的场景，可以SingleTask方式来启动。  
 另外一种情况是对于大部分应用，当我们在主界面点击回退按钮的时候都是退出应用，那么当我们第一次进入主界面之后，主界面位于栈底，以后不管我们打开了多少个Activity，只要我们再次回到主界面，都应该使用将主界面Activity上所有的Activity移除的方式来让主界面Activity处于栈顶，而不是往栈顶新加一个主界面Activity的实例，通过这种方式能够保证退出应用时所有的Activity都能报销毁。
 
