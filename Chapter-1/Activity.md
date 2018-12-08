@@ -235,11 +235,11 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
 ### 3.3 栈内复用模式 singleTask  
   该模式是一种单例模式，即一个栈内只有一个该Activity实例。该模式，可以通过在AndroidManifest文件的Activity中指定该Activity需要加载到那个栈中，即singleTask的Activity可以指定想要加载的目标栈。singleTask和taskAffinity配合使用，指定开启的Activity加入到哪个栈中。
 
-####关于taskAffinity的值：  
+#### 关于taskAffinity的值：  
   每个Activity都有taskAffinity属性，这个属性指出了它希望进入的Task。如果一个Activity没有显示的指明该Activity的taksAffinity，那么它的属性就等于Application指明的  
   taskAffinity,如果Application也没有指明，那么该taskAffinity的值就等于包名
 
-####执行逻辑:  
+#### 执行逻辑:  
 ① 如果要启动的Activity指定的栈不存在就创建一个栈，并创建新的Activity实例压入栈中。  
 ② 如果Activity指定的栈存在，但其中没有Activity，那么就新建Activity实例并压入栈顶。  
 ③ 如果要启动的Activity已经在栈中，那么就将该Activity在栈中位置以上的所有Activity都出栈，然后回调`onNewIntent()`生命周期方法  
