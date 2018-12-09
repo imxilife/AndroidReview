@@ -261,3 +261,22 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
 ![单列模式](https://user-gold-cdn.xitu.io/2017/3/26/51fcd7612ccdfe436102c607f4555ad5?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)  
 #### 应用场景:
 呼叫来电界面。这种模式的使用情况比较罕见，在Launcher中可能使用。或者你确定你需要使Activity只有一个实例。建议谨慎使用
+
+
+#### 前后台任务栈切换的特殊情况  
+现在有两个任务栈，一个是前台任务栈(A/B)，一个是后台任务栈(C/D)，C、D以SingleTask方式启动。在前台任务栈启动 `D` Activity 会将整个后台任务栈切换到前台，现在后退顺序变成了 ABCD。  
+当用户按back返回时，列表中的activity会一一出栈，如下图  
+![A](https://user-gold-cdn.xitu.io/2017/3/26/bace7e3cd0c712bce21856aa79849f81?imageslim)  
+如果在前台任务栈中启动 `C` Activity 时 任务栈又变成了 ABC，因为启动 `C` Activity的时候会将它以上的所有Activity都出栈，会把 `C`Activity置于栈顶。  
+![B](https://user-gold-cdn.xitu.io/2017/3/26/6ebd8a3347687a5d1faa090befebb10f?imageslim)  
+
+
+#### Activity的Flags  
+1. 使用: 通过intet.addFlag(具体的FLAG)  
+2. 三个常用的Flag  
+ 2.1 FLAG_ACTIVITY_NEW_TASK  
+ 这相当于以SingleTask的方式启动一个Activity，比如在服务或者Application中启动Acitvity一般都需要加整个参数。
+ 2.2 FLAG_ACTIVITY_SINGLE_TOP  
+ 其效果与指定Activity为singleTop模式一致。  
+ 2.3 FLAG_ACTIVITY_CLEAR_TOP  
+ 具有此标记位的Activity，当它启动时，在同一个任务栈中所有位于它上面的Activity都要出栈。如果和singleTask模式一起出现，若被启动的Activity已经存在栈中，则清除其之上的Activity，并调用该Activity的onNewIntent方法。如果被启动的Activity采用standard模式，那么该Activity连同之上的所有Activity出栈，然后创建新的Activity实例并压入栈中。
