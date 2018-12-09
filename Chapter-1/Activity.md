@@ -283,16 +283,16 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
 
 
 
-#### 如何从另一个Activity返回数据 (两个Activity之间的数据交互)
-Activity A  启动 Activity B 后，从 B 带回数据给A 以下的代码演示了这个操作
+#### 如何从另一个Activity返回数据 (两个Activity之间的数据交互)  
+Activity A  启动 Activity B 后，从 B 带回数据给A 以下的代码演示了这个操作  
 
-Activity A
+Activity A  
 ```java 
 Intent  a = new Intent();
 startActivityForResult(intent,RequestCode)  
 ```
 
-Activity B
+Activity B  
 ```java
 Intent intent = new Intent();
 intent.putExtra(xx,xxx);
