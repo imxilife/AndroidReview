@@ -280,3 +280,22 @@ B 生命周期方法回到 onCreate()->onStart()->onResume()
  其效果与指定Activity为singleTop模式一致。  
  2.3 FLAG_ACTIVITY_CLEAR_TOP  
  具有此标记位的Activity，当它启动时，在同一个任务栈中所有位于它上面的Activity都要出栈。如果和singleTask模式一起出现，若被启动的Activity已经存在栈中，则清除其之上的Activity，并调用该Activity的onNewIntent方法。如果被启动的Activity采用standard模式，那么该Activity连同之上的所有Activity出栈，然后创建新的Activity实例并压入栈中。
+
+
+
+#### 如何从另一个Activity返回数据 (两个Activity之间的数据交互)
+Activity A  启动 Activity B 后，从 B 带回数据给A 以下的代码演示了这个操作
+
+Activity A
+```java 
+Intent  a = new Intent();
+startActivityForResult(intent,RequestCode)  
+```
+
+Activity B
+```java
+Intent intent = new Intent();
+intent.putExtra(xx,xxx);
+setResult(intent,ACTIVITY_RESULT_OK);
+finish()
+```

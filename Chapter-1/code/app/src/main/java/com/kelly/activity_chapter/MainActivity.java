@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mBtn6;
     private Button mBtn7;
     private Button mBtn8;
-
+    private Button mBtn9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         mBtn6 = (Button) findViewById(R.id.btn6);
         mBtn7 = (Button) findViewById(R.id.btn7);
         mBtn8 = (Button) findViewById(R.id.btn8);
+        mBtn9 = (Button) findViewById(R.id.btn9);
         Log.i(TAG,"onCreate");
     }
 
@@ -129,6 +130,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        mBtn9.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,GetResultActivity.class);
+                startActivityForResult(intent,1000);
+            }
+        });
 
     }
 
@@ -174,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.i(TAG,"onActivityResult");
+        Log.i(TAG,"onActivityResult | "+"requestCode:"+requestCode+" | "+"resultCode:"+resultCode + "|" +"data:"+data.getStringExtra("Result"));
     }
 
     @Override

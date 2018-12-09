@@ -69,6 +69,7 @@
             android:taskAffinity="com.kelly.s2"
             android:exported="true"
             />
+        <activity android:name=".GetResultActivity"/>
 
     </application>
 
