@@ -15,19 +15,19 @@ public class StandardActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.common_layout);
-        mBtn = (Button) findViewById(R.id.test_btn);
+       // mBtn = (Button) findViewById(R.id.test_btn);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mBtn.setOnClickListener(new View.OnClickListener() {
+/*        mBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(StandardActivity.this,MainActivity.class);
                 startActivity(intent);
             }
-        });
+        });*/
     }
 
     @Override

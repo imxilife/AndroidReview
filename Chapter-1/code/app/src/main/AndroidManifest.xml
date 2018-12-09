@@ -27,24 +27,46 @@
             android:name=".MainService"
             android:exported="false" />
 
-        <activity android:name=".StandardActivity"
-            android:taskAffinity="com.kelly.standard"
-            />
+        <activity
+            android:name=".StandardActivity"
+            android:taskAffinity="com.kelly.standard" />
         <activity
             android:name=".SingleTopActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:taskAffinity="com.kelly.singleTop"
-            />
+            android:taskAffinity="com.kelly.singleTop" />
         <activity
             android:name=".SingleTaskActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:taskAffinity="com.kelly.singleTask"
-            />
+            android:taskAffinity="com.kelly.singleTask" />
         <activity
             android:name=".SingleInstanceActivity"
-            android:launchMode="singleInstance"
+            android:exported="true"
+            android:launchMode="singleInstance" />
+
+        <activity android:name=".SpecificActivity">
+            <intent-filter>
+                <action android:name="com.kelly.action.specific" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".Spe_A_Activity"
+            android:exported="true"
+            />
+        <activity android:name=".Spec_B_Activity"
+            android:exported="true"
+            />
+        <activity
+            android:name=".Spe_C_Activity"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.kelly.s2"
+            android:exported="true"
+            />
+        <activity
+            android:name=".Spe_D_Activity"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.kelly.s2"
             android:exported="true"
             />
 
