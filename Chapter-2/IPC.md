@@ -42,12 +42,16 @@ Android为每个应用都分配了一个唯一的ShareUID，据用相同UID的�
 
 3、SharePerferences可靠性下降  
 
-4、Applicaiton会多次创建  
+4、Applicaiton会多次创建    
 
- 
+#### Android中的序列化和Binder  
+1、什么是序列化和反序列化，为什么需要 序列化和反序列化
+2、Android常用的序列化和反序列化有哪些方式
+3、如果通过 Serializable怎么实现序列化和反序列化 ，serialVersionUID有什么用？
+4、Parcelable怎么实现序列化和反序列化。既然已经有了Serilizable为什么还需要Parceable。
+5、
 
-#### Android中的序列号和Binder  
+#### 进程间通讯方式 (AIDL、Bundle、文件共享、Messenger、ContentProvider、Socket)     
 
-#### 进程间通讯方式 (AIDL、Bundle、文件共享、Messenger、ContentProvider、Socket)  
 
-#### 各种进程间通信方式的优缺点和适用场景  
+#### 各种进程间通信方式的优缺点和适用场景    
