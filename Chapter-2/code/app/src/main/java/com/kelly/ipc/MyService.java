@@ -8,6 +8,13 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 public class MyService extends Service {
 
     private Handler mHandler;
@@ -41,7 +48,11 @@ public class MyService extends Service {
            // Toast.makeText(MyService.this,"服务中打印的sUID值是: "+UserManager.sUID++,Toast.LENGTH_SHORT).show();
             Toast.makeText(MyService.this, "多进程下的单例模式:"+TestManager.getManager(), Toast.LENGTH_SHORT).show();
             //mHandler.postDelayed(new Ex(),2000);
+            Intent intent = new Intent(MyService.this,MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
+
     }
 
 }

@@ -34,7 +34,7 @@ Android为每个应用都分配了一个唯一的ShareUID，据用相同UID的�
 跑在同一进程的两个应用，可以共享data目录、组件信息、共享内存数据等。  
 
 5. 多进程带来的影响  
-每个进程都分配了独立的虚拟机，同时虚拟机在内存分配上有不同的地址空间，导致在不同的虚拟机中访问同一个类的对象会产生多份副本  
+每个进程都分配了独立的虚拟机，同时虚拟机在内存分配上有不同的地址空间，导致在不同的虚拟机中访问同一个类的对象会产生多份副本 .凡是通过通过共享内存的方式提供数据交互的都会出现多进程的问题
 
 1、静态成员和单例模式模式完全失效  (静态成员和单例模式都是基于类的，在单进程时候，类只有一个在静态区，所以全局唯一。但在多进程情况下，每一个进程都会有自己的虚拟机同时也会分配不同的内存空间，在A、B进程间 都会存在同一个类C且互不干扰，在当前进程修改类的属性值只会影响当前进程，对其他进程没有任何影响)。  
 
@@ -45,11 +45,90 @@ Android为每个应用都分配了一个唯一的ShareUID，据用相同UID的�
 4、Applicaiton会多次创建    
 
 #### Android中的序列化和Binder  
-1、什么是序列化和反序列化，为什么需要 序列化和反序列化
-2、Android常用的序列化和反序列化有哪些方式
-3、如果通过 Serializable怎么实现序列化和反序列化 ，serialVersionUID有什么用？
-4、Parcelable怎么实现序列化和反序列化。既然已经有了Serilizable为什么还需要Parceable。
-5、
+#### 1、什么是序列化和反序列化，为什么需要 序列化和反序列化
+ 序列化和反序列化: 序列化是把对象转成二进制数据，而反序列化则反之 将二进制数据还原成对象
+ 为什么需要序列化和反序列化: 因为计算机本身只能处理二进制数据，当要在进程间交换对象数据(进程是相互隔离的，一个进程本身不能访问另一个进程或被访问)，以及将对象数据持久化到内存中，网络传输信息时，计算机根本搞不定，而只有把对象转成计算机能"认识"的二进制数据的时候，才可以happy的完成上面的工作。
+
+
+#### 2、Android常用的序列化和反序列化有哪些方式    
+ Serializable和Parcelable接口可以完成对象的序列化过程。    
+ (1)通过Intent或者Binder来传输数据时就需要使用Parcelable或者Serializable.    
+ (2)将对象持久化到存储设备上或者通过网络传输给其他客户端就需要实现Serializable接口。    
+
+#### 3、如果通过 Serializable怎么实现序列化和反序列化 ，serialVersionUID有什么用？    
+ STEP1: 要实现序列化的类实现Serializable接口，同时声明一个serialVersionUID属性即可。  
+ STEP2: 序列化和反序列
+```java
+
+//序列化过程
+       ObjectOutputStream out;
+        ObjectInputStream ois;
+
+        {
+            try {
+                User user = new User("kelly","sport");
+                out = new ObjectOutputStream(new FileOutputStream("a.txt"));
+                out.writeObject(user);
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+//反序列化过程
+            try {
+                 ois = new ObjectInputStream(new FileInputStream("a.txt"));
+                User user = (User) ois.readObject();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }finally {
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            
+        }
+```
+`serialVersionUID`有什么用？
+serialVersionUID本意是用来辅助序列化和反序列化的。序列化的时候会把serialVersionUID写入文件中(或者其他中介)，反序列化的时候再从文件中读出来和类中的serialVersionUID比较
+如果一直 序列化成功，不一致说明当前类和序列化的类发生了变化，无法成功还原。抛出invalidClassException错误.
+
+#### 4、Parcelable怎么实现序列化和反序列化。既然已经有了Serilizable为什么还需要Parceable。  
+STEP1: 要实现序列化和反序列化的类实现Parcelable接口，覆写 describeContents()、writeToParcel()、实现 CREATOR接口 并实现createFromParcel()和newArray()方法   
+```java
+    public static final Creator<xxx> CREATOR = new Creator<xxx>() {
+        @Override
+        public xxx createFromParcel(Parcel source) {
+            return new xxx(source);
+        }
+
+        @Override
+        public xxx[] newArray(int size) {
+            return new xxx[size];
+        }
+    };
+```
+以上的过程可以通过编辑器的插件来自动完成对象的序列化和反序列。  
+#### 以上各个方法的作用解释：  
+writeToParcel(Parcel out): 通过Parcel的一系列write方法完成序列化工作  
+CREATE： 其内部标明了如何建立数组以及创建序列化对象，通过Parcel的一系列read方法完成反序列化工作  
+describeContents(): 内容描述，但几乎在所有情况下这个方法都应该返回 0  
+
+#### 既然已经有了Serilizable为什么还需要Parceable  
+Serializable是Java中的序列化接口，其使用起来简单但开销很大，序列化和反序列化都需要大量的IO操作
+Parcelabel是Android中的序列化方式，效率高 ，主要用在内存序列化上。
+如果是进程间通信用Parcelable,如果是持久化或者网络传输用Serializable
+
+#### 扩展: Serilizable和Parceable 实现序列化的方式有什么不同? 
 
 #### 进程间通讯方式 (AIDL、Bundle、文件共享、Messenger、ContentProvider、Socket)     
 

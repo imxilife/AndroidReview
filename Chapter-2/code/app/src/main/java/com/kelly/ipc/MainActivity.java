@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     private Button mBtn;
     private Button mBtn1;
 
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mBtn = (Button) findViewById(R.id.btn);
         mBtn1 = (Button) findViewById(R.id.btn1);
+        Log.i(TAG,"MainActivity.this:"+MainActivity.this);
     }
 
     @Override
