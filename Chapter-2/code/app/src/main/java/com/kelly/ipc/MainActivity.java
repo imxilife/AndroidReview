@@ -2,6 +2,7 @@ package com.kelly.ipc;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.os.Parcel;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
         mBtn = (Button) findViewById(R.id.btn);
         mBtn1 = (Button) findViewById(R.id.btn1);
         Log.i(TAG,"MainActivity.this:"+MainActivity.this);
+
+
     }
 
     @Override
