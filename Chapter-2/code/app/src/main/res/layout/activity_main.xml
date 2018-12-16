@@ -32,4 +32,39 @@
         android:text="多进程下的单例模式"
         />
 
+    <Button
+        android:id="@+id/btn2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="使用Bundle实现进程间通信"
+        />
+
+    <Button
+        android:id="@+id/btn3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="使用Messenger实现进程间通信"
+        />
+
+
+    <Button
+        android:id="@+id/btn4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="使用AIDL实现进程间通信"
+        />
+
+    <Button
+        android:id="@+id/btn5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="使用Socket实现进程间通信"
+        />
+
+    <Button
+        android:id="@+id/btn6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="使用ContentProvider实现进程间通信"
+        />
 </LinearLayout>

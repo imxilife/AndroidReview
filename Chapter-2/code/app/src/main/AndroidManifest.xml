@@ -3,12 +3,12 @@
     package="com.kelly.ipc">
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name=".App"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -19,11 +19,59 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".IntentActivity"
+            android:launchMode="singleTask"
+            android:process="com.kelly.ipc.bundle.remote"
+            android:taskAffinity="com.kelly.my_activity">
+            <intent-filter>
+                <action android:name="com.kelly.action.intentActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".messenger.MessengerActivity" />
+        <activity android:name=".aidl.AIDLActivity" />
+        <activity android:name=".socket.Client"/>
+
         <service
             android:name=".MyService"
             android:enabled="true"
             android:exported="false"
             android:process=":remote" />
+
+        <service
+            android:name=".IntentService"
+            android:exported="true"
+            android:process="com.kelly.my_service">
+            <intent-filter>
+                <action android:name="com.keylly.action.start_service" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".messenger.MessengerService"
+            android:process=":remote" />
+
+        <service
+            android:name=".aidl.AIDLService"
+            android:process=":remote" />
+
+        <service
+            android:name=".socket.SocketService"
+            android:process=":remote"
+            android:exported="true" />
+
+
+        <receiver
+            android:name=".IntentReceiver"
+            android:exported="true"
+            android:process="com.kelly.my_receiver">
+            <intent-filter>
+                <action android:name="com.kelly.action.receiver" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

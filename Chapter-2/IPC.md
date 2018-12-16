@@ -88,7 +88,7 @@ Android为每个应用都分配了一个唯一的ShareUID，据用相同UID的�
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-            }finally {
+            }finally {..
                 try {
                     ois.close();
                 } catch (IOException e) {
