@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.kelly.ipc.aidl.AIDLActivity;
 import com.kelly.ipc.messenger.MessengerActivity;
+import com.kelly.ipc.socket.Client;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -122,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.i(TAG,"使用Socket实现进程间通信");
+                Intent intent = new Intent(MainActivity.this, Client.class);
+                startActivity(intent);
             }
         });
 
