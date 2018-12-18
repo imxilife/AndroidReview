@@ -144,6 +144,7 @@ public class Client extends AppCompatActivity {
      * 2、发送方在数据发送完毕时要调用flush()方法将缓存区的数据写入流
      * 3、不要在Handler中收、发数据 会导致Handler阻塞
      * 4、一次通信完就关闭Socket输入流会导致Socket本身被关闭。因此如果想一直用这个Socket的话，需要在建立连接的时候把Socket输入、输出流对象保存为全局，只有不需要的时候才释放掉
+     * 5、readLine()是阻塞方法，只要没有读到‘\n’，就一直阻塞线程等待数据,处于阻塞情况下是不返回的 也就是说while循环是不会继续往下执行。
      */
 
 
@@ -158,7 +159,7 @@ public class Client extends AppCompatActivity {
 
         @Override
         public void handleMessage(Message msg) {
-            Client activity = mRef.get();
+            final Client activity = mRef.get();
             if(activity==null){
                 Log.i(TAG,"activity is null return");
                 return;
@@ -182,6 +183,30 @@ public class Client extends AppCompatActivity {
                         activity.mBufferedWrite = new BufferedWriter(new OutputStreamWriter(activity.mSocket.getOutputStream()));
                         activity.mBufferedReader = new BufferedReader(new InputStreamReader(activity.mSocket.getInputStream()));
                         //sendEmptyMessage(MSG_RECEIVER_MESSAGE);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String content;
+                                while(!isExit){
+                                    try {
+
+                                        //错误的写法
+                                       /** while((content=activity.mBufferedReader.readLine())!=null){
+                                            builder.append(content).append("\n");
+                                        }
+
+                                        //下面这行代码永远不会执行的原因是 如果readLine()读到了数据 执行while循环然后继续等待数据到来，如果么有数据来 就会一直阻塞while判断中，无法继续往下走
+                                            Log.i(TAG,"客户端接收到的内容是: "+builder.toString());
+                                            //builder.replace(0,builder.length(),"");*/
+                                       content = activity.mBufferedReader.readLine();
+                                       Log.i(TAG,"MSG:"+content);
+
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }).start();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

@@ -84,9 +84,10 @@ public class SocketService extends Service {
                                 while(!("bye".equals(msg))){
                                   //  mPrintWriter.println("我已收到信息【"+ msg +"】来自服务端");
                                     Log.i(TAG,"接收消息:"+msg);
-                                    mPrintWriter.write("服务端接收到消息: "+msg);
+                                    mPrintWriter.write("服务端接收到消息:"+msg+"\n");
                                     mPrintWriter.flush();
                                     msg = mBufferRead.readLine();
+                                    Log.i(TAG,"如果没有消息来 每次都阻塞在这里");
                                 }
 
                             } catch (IOException e) {
