@@ -130,7 +130,186 @@ Parcelabel是Android中的序列化方式，效率高 ，主要用在内存序�
 
 #### 扩展: Serilizable和Parceable 实现序列化的方式有什么不同? 
 
-#### 进程间通讯方式 (AIDL、Bundle、文件共享、Messenger、ContentProvider、Socket)     
+### 进程间通讯方式 (AIDL、Bundle、文件共享、Messenger、ContentProvider、Socket)
+
+### Bundle方式  
+四大组件之三 Activity、Service、BroadCasetReceiver 都是支持在Intent之间携带Bundle数据的，由于Bundle实现了Parcelable接口 所以它可以很方便的在不同进程间传输    
+基于这一点 当我们在一个进程启动另一个进程的Activty、Service、BroadCaseReceiver时，我们就可以在Bundler中附加我们需要传输的数据给远程进程的信息通过Intent发送出去。    
+我们传输的数据必须能够被序列化，比如基本类型、实现了Parcelable接口的对象实现了Serializable接口的对象以及一些Android支持的特殊类型。但对于Bitmap这种不支持Parcelable接口的    
+对象就可以转成byte字节组的方式再发送出去。   
+
+### 使用文件共享  
+两个进程通过读写同一个文件来交换数据。比如A进程把数据写入共享文件，B进程从共享文件中读取。但不建议并发的写文件。这样会造成数据不一致。所以SharePreference本身是支持多进程的，但在    
+多进程的方式下数据变得不可靠.  
+
+### Messenger    
+Messager的底层实现就是Binder，只不过系统封装的更好调用而已。Messenger通信主要涉及三个类    
+
+Message: 实现了Parcelable接口，用在进程间来携带要传递的信息。     
+Messenger: 实现了Parcelable接口，提供send()方法给外部调用。 构造方法中需要传入Handler对象。通过Handler的getIMessenger()方法获取的IMessenger对象    
+Handler: 内部类MessengerImpl实现了IMessenger.Stub,其实就是实现了Bindler接口，并且在实现的send()方法中调用了Handler的sendMessage()方法来处理消息    
+
+3.1 具体实现客户端和服务端通信的步骤    
+服务端：  
+1. 新建MyService类继承自Service类，同时new Messenger、Handler对象。  
+2. 在服务的onBind()方法中通过messenger的getBinder()方法返回binder对象  
+```java
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.i(TAG,"MessengerService onCreate...");
+        messengerHandler = new MessengerHandler(this);
+        messenger = new Messenger(messengerHandler);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_NOT_STICKY;
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.i(TAG,"MessengerServie onBind ...");
+        return messenger.getBinder();
+    }
+```
+
+客户端:  
+1. 实现ServerConnection类，并覆写onServiceConnected()方法，在回调方法中获取binder对象创建Messenger对象  
+2. 调用bindService()方法传入serverConnection对象绑定到MyService服务。  
+3. 通过messenger对象调用send()方法 关键代码实现如下  
+```java
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = new Intent(this,MessengerService.class);
+        bindService(intent,serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {  //绑定成功后的回调
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            Log.i(TAG,"onServiceConnected");
+            messenger = new Messenger(binder);
+            Message message = Message.obtain(null,MessengerService.MSG_CLIENT_SEND);
+            Bundle bundle = new Bundle();
+            bundle.putString("key","hello this is client");
+            message.setData(bundle);
+            message.replyTo = mClientMessenger;
+            try {
+                messenger.send(message);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG,"onServiceDisconnected");
+        }
+    };
+```
+
+
+```java
+Messenger.java
+    private final IMessenger mTarget;
+
+    /**
+     * Create a new Messenger pointing to the given Handler.  Any Message
+     * objects sent through this Messenger will appear in the Handler as if
+     * {@link Handler#sendMessage(Message) Handler.sendMessage(Message)} had
+     * been called directly.
+     * 
+     * @param target The Handler that will receive sent messages.
+     */
+    public Messenger(Handler target) {
+        mTarget = target.getIMessenger();
+    }
+
+    public void send(Message message) throws RemoteException {
+        mTarget.send(message);
+    }
+----------------------------------------
+Handler.java
+private final class MessengerImpl extends IMessenger.Stub {
+        public void send(Message msg) {
+            msg.sendingUid = Binder.getCallingUid();
+            Handler.this.sendMessage(msg);
+        }
+    }
+
+final IMessenger getIMessenger() {
+        synchronized (mQueue) {
+            if (mMessenger != null) {
+                return mMessenger;
+            }
+            mMessenger = new MessengerImpl();
+            return mMessenger;
+        }
+    }
+```
+
+3.2 总结  
+1. 基于Messenger方式的进程间通信使用于对并发要求不高的情况，因为消息是通过Handler来处理的，一次只能处理一个请求。
+2. 如果需要客户端也返回消息给服务端的话，客户端也需要实现Messenger和Handler接口，同时在serverConnection回调方法中调用message的replyTo方法将客户端Messenger对象传回服务端  
+```java
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {  //绑定成功后的回调  
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            Log.i(TAG,"onServiceConnected");
+            messenger = new Messenger(binder);
+            Message message = Message.obtain(null,MessengerService.MSG_CLIENT_SEND);
+            Bundle bundle = new Bundle();
+            bundle.putString("key","hello this is client");
+            message.setData(bundle);
+            message.replyTo = mClientMessenger;  //这里带回客户端的Messenger  
+            try {
+                messenger.send(message);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+//客户端Handler实现  
+    private static final class ClientMessengerHandler extends Handler{
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case MessengerService.MSG_SERVICE_SEND:
+                    Bundle bundle = msg.getData();
+                    Log.i(TAG,"服务端返回的:" + bundle.getString("key"));
+                    break;
+            }
+        }
+    }        
+```
+
+### socket   
+通过socket的方式一般用于网络，当然也可以在两个进程间通信  
+socket通信有TCP和UDP方式两种，TCP是面对连接的，整个通信过程是基于状态的，而UDP是无状态的，整个通信过程UDP不关心通信质量，不会对数据校验。  
+
+socket通信的一般形式是创建服务端和客户端，完成信息共享  
+服务端:  
+1. 创建ServerSocket，ServerSocket serverSocket = new ServerSocket(9090);  
+2. 调用accept()方法阻塞，在9090端口监听客户端连接  
+3. 接收到客户端的连接后，创建线程，建立和客户端的通信。  
+
+客户端:  
+1. new Socket("192.168.1.102",9090); 创建Socket并连接到指定IP的9090端口上  
+2. 成功返回socket后 分别获取输入流和输出流 保存到全局变量  
+
+#### 注意:  
+     * 1、如果接收方是通过readLine()方法来读数据的话 发送方在发送的末尾一定要加'\n'换行符 否则会导致接收方一直读不到换行符而获取不到发送的数据  
+     * 2、发送方在数据发送完毕时要调用flush()方法将缓存区的数据写入流  
+     * 3、不要在Handler中收、发数据 会导致Handler阻塞  
+     * 4、一次通信完就关闭Socket输入流会导致Socket本身被关闭。因此如果想一直用这个Socket的话，需要在建立连接的时候把Socket输入、输出流对象保存为全局，只有不需要的时候才释放掉  
+     * 5、readLine()是阻塞方法，只要没有读到‘\n’，就一直阻塞线程等待数据,处于阻塞情况下是不返回的 也就是说while循环是不会继续往下执行。  
+
+### AIDL  
+
 
 
 #### 各种进程间通信方式的优缺点和适用场景    

@@ -46,6 +46,7 @@ public class Client extends AppCompatActivity {
     private BufferedWriter mBufferedWrite;
     private BufferedReader mBufferedReader;
     public static Boolean isExit = false;
+    private String X;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -186,7 +187,6 @@ public class Client extends AppCompatActivity {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                String content;
                                 while(!isExit){
                                     try {
 
@@ -198,8 +198,16 @@ public class Client extends AppCompatActivity {
                                         //下面这行代码永远不会执行的原因是 如果readLine()读到了数据 执行while循环然后继续等待数据到来，如果么有数据来 就会一直阻塞while判断中，无法继续往下走
                                             Log.i(TAG,"客户端接收到的内容是: "+builder.toString());
                                             //builder.replace(0,builder.length(),"");*/
-                                       content = activity.mBufferedReader.readLine();
-                                       Log.i(TAG,"MSG:"+content);
+                                        activity.X = activity.mBufferedReader.readLine();
+                                        Log.i(TAG,"MSG:"+activity.X);
+                                       activity.runOnUiThread(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               activity.mReceiver.setText("");
+                                               activity.mReceiver.setText(activity.X);
+                                           }
+                                       });
+
 
                                     }catch (Exception e){
                                         e.printStackTrace();
