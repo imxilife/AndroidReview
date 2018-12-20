@@ -324,7 +324,15 @@ setKeepAlive(true|false) 它和前端的keepAlive是有区别的，它的原理�
 setOOBInline(true|false) 这个参数默认为false 若开启 则允许通过socket的方法 sendUrgentData(int)发送，这个API是直接发送，不会经过缓冲区。  
 
 
-### AIDL  
+### AIDL    
+提出问题: 现在有A、B两个进程 ，B进程有个计算数据和的方法，A进程想给B进程传递两个数 ，然后通过B进程的方法求和 并将结果返回给A进程。  
+分析问题:  要想从A进程获取B进程的结果 需要解决两件事  
+1. A、B进程要解决进程间通信问题(Linux原则是不能进行进程间直接通信的)  
+2. B进程需要提供具有特定能力的方法  
+对于第一个问题 Android提供了Binder，Binder具有进程间通信的能力，是因为它实现了IBinder接口，凡是实现了IBinder接口的类都具有进程间通信的能力  
+对于第二个问题 是通过Binder的attachInterface(IInterface,DESCRIPT)方法来实现了，这个方法有两个参数 实现了IInterface接口的对象以及DESCRIP。  
+
+具体参考： https://juejin.im/entry/5786afbb8ac2470060665499
 
 
 
