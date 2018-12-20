@@ -130,27 +130,35 @@ Parcelabel是Android中的序列化方式，效率高 ，主要用在内存序�
 
 #### 扩展: Serilizable和Parceable 实现序列化的方式有什么不同? 
 
+---------------------------------------------------分界线---------------------------------------------------------------  
+
 ### 进程间通讯方式 (AIDL、Bundle、文件共享、Messenger、ContentProvider、Socket)
 
-### Bundle方式  
+#### Bundle方式  
 四大组件之三 Activity、Service、BroadCasetReceiver 都是支持在Intent之间携带Bundle数据的，由于Bundle实现了Parcelable接口 所以它可以很方便的在不同进程间传输    
 基于这一点 当我们在一个进程启动另一个进程的Activty、Service、BroadCaseReceiver时，我们就可以在Bundler中附加我们需要传输的数据给远程进程的信息通过Intent发送出去。    
 我们传输的数据必须能够被序列化，比如基本类型、实现了Parcelable接口的对象实现了Serializable接口的对象以及一些Android支持的特殊类型。但对于Bitmap这种不支持Parcelable接口的    
 对象就可以转成byte字节组的方式再发送出去。   
 
-### 使用文件共享  
+----------------------------------------------------------------------------------------------------------------------  
+
+#### 使用文件共享  
 两个进程通过读写同一个文件来交换数据。比如A进程把数据写入共享文件，B进程从共享文件中读取。但不建议并发的写文件。这样会造成数据不一致。所以SharePreference本身是支持多进程的，但在    
 多进程的方式下数据变得不可靠.  
 
-### Messenger    
-Messager的底层实现就是Binder，只不过系统封装的更好调用而已。Messenger通信主要涉及三个类    
+----------------------------------------------------------------------------------------------------------------------  
 
-Message: 实现了Parcelable接口，用在进程间来携带要传递的信息。     
-Messenger: 实现了Parcelable接口，提供send()方法给外部调用。 构造方法中需要传入Handler对象。通过Handler的getIMessenger()方法获取的IMessenger对象    
-Handler: 内部类MessengerImpl实现了IMessenger.Stub,其实就是实现了Bindler接口，并且在实现的send()方法中调用了Handler的sendMessage()方法来处理消息    
+#### Messenger    
+
+Messager的底层实现就是`Binder`，只不过系统封装的更好调用而已。Messenger通信主要涉及三个类    
+
+`Message: 实现了Parcelable接口，用在进程间来携带要传递的信息。`     
+`Messenger: 实现了Parcelable接口，提供send()方法给外部调用。 构造方法中需要传入Handler对象。通过Handler的getIMessenger()方法获取的IMessenger对象`    
+`Handler: 内部类MessengerImpl实现了IMessenger.Stub,其实就是实现了Bindler接口，并且在实现的send()方法中调用了Handler的sendMessage()方法来处理消息`    
 
 3.1 具体实现客户端和服务端通信的步骤    
-服务端：  
+
+`服务端`:    
 1. 新建MyService类继承自Service类，同时new Messenger、Handler对象。  
 2. 在服务的onBind()方法中通过messenger的getBinder()方法返回binder对象  
 ```java
@@ -175,7 +183,7 @@ Handler: 内部类MessengerImpl实现了IMessenger.Stub,其实就是实现了Bin
     }
 ```
 
-客户端:  
+`客户端`:    
 1. 实现ServerConnection类，并覆写onServiceConnected()方法，在回调方法中获取binder对象创建Messenger对象  
 2. 调用bindService()方法传入serverConnection对象绑定到MyService服务。  
 3. 通过messenger对象调用send()方法 关键代码实现如下  
@@ -286,18 +294,20 @@ final IMessenger getIMessenger() {
         }
     }        
 ```
+----------------------------------------------------------------------------------------------------------------------  
 
-### socket   
+#### socket   
+
 通过socket的方式一般用于网络，当然也可以在两个进程间通信  
 socket通信有TCP和UDP方式两种，TCP是面对连接的，整个通信过程是基于状态的，而UDP是无状态的，整个通信过程UDP不关心通信质量，不会对数据校验。  
 
 socket通信的一般形式是创建服务端和客户端，完成信息共享  
-服务端:  
+`服务端`:  
 1. 创建ServerSocket，ServerSocket serverSocket = new ServerSocket(9090);  
 2. 调用accept()方法阻塞，在9090端口监听客户端连接  
 3. 接收到客户端的连接后，创建线程，建立和客户端的通信。  
 
-客户端:  
+`客户端`:  
 1. new Socket("192.168.1.102",9090); 创建Socket并连接到指定IP的9090端口上  
 2. 成功返回socket后 分别获取输入流和输出流 保存到全局变量  
 
@@ -313,18 +323,20 @@ connet(SocketAddress endpoint, int timeout)
 当设置了timeout参数后 就可以达到连接超时的效果，而通过调用方法 setSoTimeout(int timeout) 可以设置每次读取超时。         
 
 2. Socket常用的API  
-setReuseAddress(true|false) 允许将多个Socket绑定到同一个端口上，通过getReuseAddree()方法来获取当前值即可，但在发生socket。bind()之前必须先设置才会生效  
-setTcpDelay(true|false) 该参数默认值是false，会启用Ngle算法  
-setSoLinger(true|fase,int linger) 该参数决定Socket关闭时是否尝试继续发送Kernel缓冲区中还未发送出去的数据，若设置为true 则由第二个int型参数决定发送Kernel缓冲还未发送的内容最长的等待时间   
-单位是秒，通过getSoLinger()可以获取到设置的值  
-setSendBufferSize() 设置发送缓冲区的大小  默认值是8192字节 一般保持默认就好 通过getSendBufferSize()来获取值  
-setReceiveBufferSize(int) 设置接收数据的缓冲区大小，默认值是8192字节，通过getReceiverBuffSize()来获取设置值  
-setKeepAlive(true|false) 它和前端的keepAlive是有区别的，它的原理是每个一段时间(例如2小时)会将数据包发送给对方，如果对方响应，则认为链接依然存活。如果未响应，则在十多分钟后再发送一个数据包；
-如果对方还未响应，则再过十多分钟再发送一个数据包，则会将客户端的socket关闭。该参数默认值是false 通过getKeepAlive()来获取当前值  
-setOOBInline(true|false) 这个参数默认为false 若开启 则允许通过socket的方法 sendUrgentData(int)发送，这个API是直接发送，不会经过缓冲区。  
+* setReuseAddress(true|false) 允许将多个Socket绑定到同一个端口上，通过getReuseAddree()方法来获取当前值即可，但在发生socket。bind()之前必须先设置才会生效  
+* setTcpDelay(true|false) 该参数默认值是false，会启用Ngle算法  
+* setSoLinger(true|fase,int linger) 该参数决定Socket关闭时是否尝试继续发送Kernel缓冲区中还未发送出去的数据，若设置为true 则由第二个int型参数决定发送Kernel缓冲还未发送的内容最长的
+  等待时间,单位是秒，通过getSoLinger()可以获取到设置的值  
+* setSendBufferSize() 设置发送缓冲区的大小  默认值是8192字节 一般保持默认就好 通过getSendBufferSize()来获取值  
+* setReceiveBufferSize(int) 设置接收数据的缓冲区大小，默认值是8192字节，通过getReceiverBuffSize()来获取设置值  
+* setKeepAlive(true|false) 它和前端的keepAlive是有区别的，它的原理是每个一段时间(例如2小时)会将数据包发送给对方，如果对方响应，则认为链接依然存活。如果未响应，则在十多分钟后再发送一个
+  数据包,如果对方还未响应，则再过十多分钟再发送一个数据包，则会将客户端的socket关闭。该参数默认值是false 通过getKeepAlive()来获取当前值  
+* setOOBInline(true|false) 这个参数默认为false 若开启 则允许通过socket的方法 sendUrgentData(int)发送，这个API是直接发送，不会经过缓冲区。  
 
+----------------------------------------------------------------------------------------------------------------------  
 
-### AIDL    
+#### AIDL    
+
 提出问题: 现在有A、B两个进程 ，B进程有个计算数据和的方法，A进程想给B进程传递两个数 ，然后通过B进程的方法求和 并将结果返回给A进程。  
 分析问题:  要想从A进程获取B进程的结果 需要解决两件事  
 1. A、B进程要解决进程间通信问题(Linux原则是不能进行进程间直接通信的)  
