@@ -306,7 +306,23 @@ socket通信的一般形式是创建服务端和客户端，完成信息共享
      * 2、发送方在数据发送完毕时要调用flush()方法将缓存区的数据写入流  
      * 3、不要在Handler中收、发数据 会导致Handler阻塞  
      * 4、一次通信完就关闭Socket输入流会导致Socket本身被关闭。因此如果想一直用这个Socket的话，需要在建立连接的时候把Socket输入、输出流对象保存为全局，只有不需要的时候才释放掉  
-     * 5、readLine()是阻塞方法，只要没有读到‘\n’，就一直阻塞线程等待数据,处于阻塞情况下是不返回的 也就是说while循环是不会继续往下执行。  
+     * 5、readLine()是阻塞方法，只要没有读到‘\n’，就一直阻塞线程等待数据,处于阻塞情况下是不返回的 也就是说while循环是不会继续往下执行。
+
+1. 在网络通信中，一般需要关注 是否连通、心跳、对方是否已经关闭等 对应的手段同时也是连接超时，读取数据超时，它们在socket中都提供了参数，在socket原始的连接方法中，有一个方法  
+connet(SocketAddress endpoint, int timeout)  
+当设置了timeout参数后 就可以达到连接超时的效果，而通过调用方法 setSoTimeout(int timeout) 可以设置每次读取超时。         
+
+2. Socket常用的API  
+setReuseAddress(true|false) 允许将多个Socket绑定到同一个端口上，通过getReuseAddree()方法来获取当前值即可，但在发生socket。bind()之前必须先设置才会生效  
+setTcpDelay(true|false) 该参数默认值是false，会启用Ngle算法  
+setSoLinger(true|fase,int linger) 该参数决定Socket关闭时是否尝试继续发送Kernel缓冲区中还未发送出去的数据，若设置为true 则由第二个int型参数决定发送Kernel缓冲还未发送的内容最长的等待时间   
+单位是秒，通过getSoLinger()可以获取到设置的值  
+setSendBufferSize() 设置发送缓冲区的大小  默认值是8192字节 一般保持默认就好 通过getSendBufferSize()来获取值  
+setReceiveBufferSize(int) 设置接收数据的缓冲区大小，默认值是8192字节，通过getReceiverBuffSize()来获取设置值  
+setKeepAlive(true|false) 它和前端的keepAlive是有区别的，它的原理是每个一段时间(例如2小时)会将数据包发送给对方，如果对方响应，则认为链接依然存活。如果未响应，则在十多分钟后再发送一个数据包；
+如果对方还未响应，则再过十多分钟再发送一个数据包，则会将客户端的socket关闭。该参数默认值是false 通过getKeepAlive()来获取当前值  
+setOOBInline(true|false) 这个参数默认为false 若开启 则允许通过socket的方法 sendUrgentData(int)发送，这个API是直接发送，不会经过缓冲区。  
+
 
 ### AIDL  
 
