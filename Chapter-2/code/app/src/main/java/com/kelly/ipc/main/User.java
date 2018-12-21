@@ -1,4 +1,4 @@
-package com.kelly.ipc;
+package com.kelly.ipc.main;
 
 import java.io.Serializable;
 

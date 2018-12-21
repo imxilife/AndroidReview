@@ -1,4 +1,4 @@
-package com.kelly.ipc;
+package com.kelly.ipc.main;
 
 import android.os.Parcel;
 import android.os.Parcelable;

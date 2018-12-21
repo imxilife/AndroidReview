@@ -1,10 +1,9 @@
-package com.kelly.ipc;
+package com.kelly.ipc.bundle;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 public class IntentActivity extends AppCompatActivity {

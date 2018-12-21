@@ -1,4 +1,4 @@
-package com.kelly.ipc;
+package com.kelly.ipc.bundle;
 
 import android.app.Service;
 import android.content.Intent;
@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import com.kelly.ipc.Book;
 
 public class IntentService extends Service {
 

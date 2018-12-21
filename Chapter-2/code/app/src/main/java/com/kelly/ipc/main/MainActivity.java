@@ -1,9 +1,7 @@
-package com.kelly.ipc;
+package com.kelly.ipc.main;
 
 import android.content.ComponentName;
 import android.content.Intent;
-import android.os.Messenger;
-import android.os.Parcel;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.kelly.ipc.Book;
+import com.kelly.ipc.R;
 import com.kelly.ipc.aidl.AIDLActivity;
 import com.kelly.ipc.messenger.MessengerActivity;
 import com.kelly.ipc.socket.Client;
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this,"当前sUID的值: "+ (UserManager.sUID++),Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent();
-                intent.setComponent(new ComponentName("com.kelly.ipc","com.kelly.ipc.MyService"));
+                intent.setComponent(new ComponentName("com.kelly.ipc","com.kelly.ipc.main.MyService"));
                 startService(intent);
             }
         });
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 startServiceIntent.setAction("com.keylly.action.start_service");
                 startServiceIntent.setPackage("com.kelly.ipc");
                 //方式二
-                //startServiceIntent.setComponent(new ComponentName("com.kelly.ipc","com.kelly.ipc.IntentService"));
+                //startServiceIntent.setComponent(new ComponentName("com.kelly.ipc","com.kelly.ipc.bundle.IntentService"));
                 startServiceIntent.putExtra("key",bundle1);
                 startService(startServiceIntent);
 

@@ -346,6 +346,9 @@ connet(SocketAddress endpoint, int timeout)
 
 具体参考： https://juejin.im/entry/5786afbb8ac2470060665499
 
+#### AIDL通信步骤
+1. 建立一个aidl文件夹放在src/main目录下 与java同级
+2. 定义服务端需要实现的方法 xx.aidl 注意: 如果有涉及到类传输的
 
 
 #### 各种进程间通信方式的优缺点和适用场景    

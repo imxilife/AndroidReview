@@ -1,4 +1,4 @@
-package com.kelly.ipc;
+package com.kelly.ipc.main;
 
 import android.app.Service;
 import android.content.Intent;
@@ -7,13 +7,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 public class MyService extends Service {
 

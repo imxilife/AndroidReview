@@ -1,4 +1,4 @@
-package com.kelly.ipc;
+package com.kelly.ipc.main;
 
 public abstract class A  extends B{
 

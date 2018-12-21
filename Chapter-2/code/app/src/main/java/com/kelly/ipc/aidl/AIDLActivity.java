@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.kelly.ipc.Book;
+import com.kelly.ipc.IOnNewBookArrivedListener;
 import com.kelly.ipc.R;
 
 import java.util.List;
@@ -91,6 +92,12 @@ public class AIDLActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        try {
+            mBookManager.unRegisterListener(listener);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        unbindService(serviceConnection);
     }
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -98,6 +105,12 @@ public class AIDLActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG,"serviceConnected");
             mBookManager = com.kelly.ipc.IBookManager.Stub.asInterface(service);
+            try {
+                mBookManager.registerListener(listener);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            Log.i(TAG,"回调的线程:"+Thread.currentThread().getName());
         }
 
         @Override
@@ -105,4 +118,12 @@ public class AIDLActivity extends AppCompatActivity {
             Log.i(TAG,"DisConnected");
         }
     };
+
+    IOnNewBookArrivedListener listener = new IOnNewBookArrivedListener.Stub() {
+        @Override
+        public void onNewBookArrived(Book newBook) throws RemoteException {
+            Log.i(TAG,"当前线程是: "+Thread.currentThread().getId()+"****** 有新书来 ****** 书名:"+newBook.getBookName());
+        }
+    };
+
 }

@@ -14,7 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -24,7 +24,7 @@
         </activity>
 
         <activity
-            android:name=".IntentActivity"
+            android:name=".bundle.IntentActivity"
             android:launchMode="singleTask"
             android:process="com.kelly.ipc.bundle.remote"
             android:taskAffinity="com.kelly.my_activity">
@@ -39,13 +39,13 @@
         <activity android:name=".socket.Client"/>
 
         <service
-            android:name=".MyService"
+            android:name=".main.MyService"
             android:enabled="true"
             android:exported="false"
             android:process=":remote" />
 
         <service
-            android:name=".IntentService"
+            android:name=".bundle.IntentService"
             android:exported="true"
             android:process="com.kelly.my_service">
             <intent-filter>
@@ -68,7 +68,7 @@
 
 
         <receiver
-            android:name=".IntentReceiver"
+            android:name=".bundle.IntentReceiver"
             android:exported="true"
             android:process="com.kelly.my_receiver">
             <intent-filter>

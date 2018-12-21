@@ -1,4 +1,4 @@
-package com.kelly.ipc;
+package com.kelly.ipc.bundle;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
