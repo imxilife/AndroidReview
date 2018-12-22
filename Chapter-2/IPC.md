@@ -495,6 +495,8 @@ public class AIDLService extends Service {
 
 4.  实现客户端代码 主要是实现ServerConnetion接口同时bindServcie() 代码如下    
 5.  在 onServiceConnected()方法回调中将Binder对象反转为接口，这样就可以在客户端调用服务端对应的方法了。  
+6.  最后在客户端退出的时候调用unbindService()方法，断开和服务端的连接
+7.  如果在连接过程中与服务端断联了也可以在onServiceDisconnected()回调方法中重新连接
    
 ```java
 package com.kelly.ipc.aidl;
