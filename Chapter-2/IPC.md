@@ -346,9 +346,286 @@ connet(SocketAddress endpoint, int timeout)
 
 具体参考： https://juejin.im/entry/5786afbb8ac2470060665499
 
-#### AIDL通信步骤
-1. 建立一个aidl文件夹放在src/main目录下 与java同级
-2. 定义服务端需要实现的方法 xx.aidl 注意: 如果有涉及到类传输的
+#### AIDL通信步骤  
+1. 建立一个aidl文件夹放在src/main目录下 与java同级  
+2. 定义服务端需要实现的方法 xx.aidl 注意: 如果有涉及到类做为参数需要在进程通信的话 还需要定义xx.aidl  如以下的定义  
+```java
+// IBookManager.aidl
+package com.kelly.ipc;
 
+import com.kelly.ipc.Book;
+import com.kelly.ipc.IOnNewBookArrivedListener;
+
+//IBookManager中使用到了Book这个类 所以需要定义一个Book.aidl 同时需要import
+interface IBookManager {
+
+   List<Book> getListBook();
+
+   void addBook(in Book book);
+
+   void registerListener(IOnNewBookArrivedListener listener);
+
+   void unRegisterListener(IOnNewBookArrivedListener listener);
+
+}
+
+// Book.aidl
+package com.kelly.ipc;
+
+// Declare any non-default types here with import statements
+parcelable Book;
+
+```     
+
+3.  新建MyServic类继承自Servie,并覆写其中的onBinder方法  
+4.  实现xx.Stub类（这里用IBookManager类演示）,并在onBinder方法中返回这个对象 代码如下  
+```java
+package com.kelly.ipc.aidl;
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
+import android.support.annotation.Nullable;
+import android.util.Log;
+
+import com.kelly.ipc.Book;
+import com.kelly.ipc.IBookManager;
+import com.kelly.ipc.IOnNewBookArrivedListener;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class AIDLService extends Service {
+
+    private String TAG = AIDLService.class.getSimpleName();
+
+    //private List<Book> mBookList = new ArrayList<>(10);
+    private CopyOnWriteArrayList<Book>mBookList = new CopyOnWriteArrayList<>();  //线程安全集合
+    private RemoteCallbackList<IOnNewBookArrivedListener> listeners = new RemoteCallbackList<>();
+    private AddBookRunnable mAddBookRunnable;
+    private Handler mHandler;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Book book = new Book("Android艺术探索","任玉刚");
+        Book book1 = new Book("App研发录","包建强");
+        Book book2 = new Book("Github入门与实践","大潨弘记");
+        mBookList.add(book);
+        mBookList.add(book1);
+        mBookList.add(book2);
+        mAddBookRunnable = new AddBookRunnable();
+        mHandler = new Handler();
+        mHandler.postDelayed(mAddBookRunnable,5000);
+    }
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_NOT_STICKY;
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;   //这里是返回给客户端的binder
+    }
+
+    private IBinder binder = new IBookManager.Stub() {    //实现binder类 同时覆写之前定义的aidl接口方法，作为服务端提供的功能
+        @Override
+        public List<Book> getListBook() throws RemoteException {
+            Log.i(TAG,"book.size:"+mBookList.size());
+            return mBookList;
+        }
+
+        @Override
+        public void addBook(Book book) throws RemoteException {
+            mBookList.add(book);
+            Log.i(TAG,"addBook: "+book.toString());
+        }
+
+        @Override
+        public void registerListener(IOnNewBookArrivedListener listener) throws RemoteException {
+            listeners.register(listener);
+            Log.i(TAG,"注册后监听器的个数:"+listeners.getRegisteredCallbackCount());
+        }
+
+        @Override
+        public void unRegisterListener(IOnNewBookArrivedListener listener) throws RemoteException {
+           listeners.unregister(listener);
+            Log.i(TAG,"解除注册后监听器的个数:"+listeners.getRegisteredCallbackCount());
+        }
+    };
+
+    private class AddBookRunnable implements Runnable{
+
+        @Override
+        public void run() {
+            Book book = new Book();
+            book.setBookName("Android开发第 " + System.currentTimeMillis() +" 集");
+/*            for (int i = 0; i < listeners.; i++) {
+                try {
+                    listeners.get(i).onNewBookArrived(book);
+                    mHandler.postDelayed(mAddBookRunnable,5000);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }*/
+            final int n = listeners.beginBroadcast();
+            for (int i = 0; i < n; i++) {
+                IOnNewBookArrivedListener listener = listeners.getBroadcastItem(i);
+                try {
+                    listener.onNewBookArrived(book);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+            listeners.finishBroadcast();
+        }
+    }
+
+}
+```
+
+4.  实现客户端代码 主要是实现ServerConnetion接口同时bindServcie() 代码如下    
+5.  在 onServiceConnected()方法回调中将Binder对象反转为接口，这样就可以在客户端调用服务端对应的方法了。  
+   
+```java
+package com.kelly.ipc.aidl;
+
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.kelly.ipc.Book;
+import com.kelly.ipc.IOnNewBookArrivedListener;
+import com.kelly.ipc.R;
+
+import java.util.List;
+
+
+public class AIDLActivity extends AppCompatActivity {
+
+    private static final String TAG = AIDLActivity.class.getSimpleName();
+    private com.kelly.ipc.IBookManager mBookManager;
+
+
+    private Button mAddBtn;
+    private Button mGetBtn;
+    private TextView mShowTV;
+
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.aidl_layout);
+        mAddBtn = (Button) findViewById(R.id.btn_add);
+        mGetBtn = (Button) findViewById(R.id.btn_get);
+        mShowTV = (TextView) findViewById(R.id.show);
+        Intent intent = new Intent(this,AIDLService.class);
+        bindService(intent,serviceConnection,BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mAddBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Book book = new Book();
+                book.setAuthor("Goslin");
+                book.setBookName("Java核心知识");
+                try {
+                    mBookManager.addBook(book);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        mGetBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    final List<Book> books = mBookManager.getListBook();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(books!=null && books.size()>0){
+                                Log.i(TAG,"book.length:"+books.size());
+                                StringBuffer buffer = new StringBuffer(10);
+                                for (int i = 0; i < books.size(); i++) {
+                                      buffer.append(books.get(i).toString()).append("\n");
+                                }
+                                if(buffer.length()>0){
+                                    mShowTV.setText("");
+                                }
+                                mShowTV.setText(buffer.toString());
+                            }
+                        }
+                    });
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            mBookManager.unRegisterListener(listener);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        unbindService(serviceConnection);
+    }
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(TAG,"serviceConnected");
+            mBookManager = com.kelly.ipc.IBookManager.Stub.asInterface(service);
+            try {
+                mBookManager.registerListener(listener);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            Log.i(TAG,"回调的线程:"+Thread.currentThread().getName());
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG,"DisConnected");
+        }
+    };
+
+    IOnNewBookArrivedListener listener = new IOnNewBookArrivedListener.Stub() {
+        @Override
+        public void onNewBookArrived(Book newBook) throws RemoteException {
+            Log.i(TAG,"当前线程是: "+Thread.currentThread().getId()+"****** 有新书来 ****** 书名:"+newBook.getBookName());
+        }
+    };
+
+}
+```
 
 #### 各种进程间通信方式的优缺点和适用场景    
